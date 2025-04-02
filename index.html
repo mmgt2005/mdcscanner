@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        #reader {
+            width: 300px;
+        }
+        #result-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #copy-button {
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <div id="reader"></div>
+    <div id="result-container">
+        <p>Scanned Result: <span id="result">None</span></p>
+        <button id="copy-button">Copy</button>
+    </div>
+    
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById('result').innerText = decodedText;
+        }
+
+        function onScanError(errorMessage) {
+            console.warn(`QR Code scan error: ${errorMessage}`);
+        }
+
+        document.getElementById('copy-button').addEventListener('click', function() {
+            const resultText = document.getElementById('result').innerText;
+            navigator.clipboard.writeText(resultText).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        });
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: 250 }
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+    </script>
+</body>
+</html>
