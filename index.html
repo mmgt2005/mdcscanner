@@ -5,13 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            overflow: hidden;
+            background-color: #f8f8f8;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 400px;
+            max-height: 400px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
         #reader {
-            width: 300px;
+            width: 100%;
+            height: auto;
         }
         #result-container {
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 10px;
+            margin-top: 10px;
         }
         .action-button {
             cursor: pointer;
@@ -19,6 +47,8 @@
             color: white;
             border: none;
             border-radius: 5px;
+            width: 100px;
+            text-align: center;
         }
         #check-in-button {
             background-color: #28a745;
@@ -29,13 +59,15 @@
     </style>
 </head>
 <body>
-    <label for="email">Enter your email:</label>
-    <input type="email" id="email" required>
-    <div id="reader"></div>
-    <div id="result-container">
-        <p>Scanned Result: <span id="result">None</span></p>
-        <button id="check-in-button" class="action-button">Check In</button>
-        <button id="check-out-button" class="action-button">Check Out</button>
+    <div id="container">
+        <label for="email">Enter your email:</label>
+        <input type="email" id="email" required>
+        <div id="reader"></div>
+        <div id="result-container">
+            <p>Scanned Result: <span id="result">None</span></p>
+            <button id="check-in-button" class="action-button">Check In</button>
+            <button id="check-out-button" class="action-button">Check Out</button>
+        </div>
     </div>
     
     <script>
