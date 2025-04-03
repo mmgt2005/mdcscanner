@@ -19,8 +19,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 100vmin;
-            height: auto;
+            width: 90vw;
             max-width: 500px;
             background: white;
             border-radius: 10px;
@@ -40,11 +39,12 @@
         }
         .action-button {
             cursor: pointer;
-            padding: 5px 10px;
+            padding: 10px;
             color: white;
             border: none;
             border-radius: 5px;
-            width: 100px;
+            width: 90%;
+            max-width: 200px;
             text-align: center;
         }
         #check-in-button {
@@ -68,6 +68,15 @@
             color: green;
             font-weight: bold;
             margin-top: 5px;
+        }
+        @media (max-width: 600px) {
+            #container {
+                width: 95vw;
+                padding: 15px;
+            }
+            .action-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -162,5 +171,3 @@
     </script>
 </body>
 </html>
-
-
