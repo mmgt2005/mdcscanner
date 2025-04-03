@@ -35,7 +35,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
             margin-top: 10px;
         }
         .action-button {
@@ -64,6 +64,11 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        #scan-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -75,6 +80,8 @@
         <div id="reader"></div>
         <div id="result-container">
             <p>Scanned Result: <span id="result">None</span></p>
+            <p id="scan-message"></p>
+            <p id="record-message" style="color: blue;"></p>
             <button id="check-in-button" class="action-button">Check In</button>
             <button id="check-out-button" class="action-button">Check Out</button>
         </div>
@@ -86,24 +93,23 @@
             return urlParams.get(param);
         }
 
-        // Get email and webhook from URL if provided
         const predefinedEmail = getQueryParam('email');
         const customWebhook = getQueryParam('webhook');
 
-        // Set email field if found
         if (predefinedEmail) {
             document.getElementById('email').value = predefinedEmail;
         }
 
-        // Override the webhook URL if provided
-        const WEBHOOK_URL = customWebhook || "https://your-webhook-url.com"; // Replace with your actual webhook URL
+        const WEBHOOK_URL = customWebhook || "https://your-webhook-url.com";
         
-        const beepSound = new Audio("https://www.soundjay.com/button/beep-07.wav"); // Beep sound URL
-        beepSound.volume = 1.0; // Set beep sound to maximum volume
+        const beepSound = new Audio("https://www.soundjay.com/button/beep-07.wav");
+        beepSound.volume = 1.0;
 
         function onScanSuccess(decodedText, decodedResult) {
             document.getElementById('result').innerText = decodedText;
-            beepSound.play(); // Play beep sound on successful scan
+            document.getElementById('scan-message').innerText = "Scan Successful";
+            beepSound.play();
+            setTimeout(() => beepSound.play(), 200);
         }
 
         function onScanError(errorMessage) {
@@ -115,7 +121,7 @@
             const email = document.getElementById('email').value;
             
             if (!email) {
-                beepSound.play(); // Beep sound for error
+                beepSound.play();
                 return;
             }
             
@@ -126,13 +132,18 @@
                     body: JSON.stringify({ email: email, scanned_result: resultText, action: action })
                 })
                 .then(response => response.json())
-                .then(data => beepSound.play()) // Beep sound on successful webhook send
+                .then(data => {
+                    beepSound.play();
+                    document.getElementById('result').innerText = "None";
+                    document.getElementById('scan-message').innerText = "";
+                    document.getElementById('record-message').innerText = "Scan Recorded";
+                })
                 .catch(error => {
                     console.error(`Error sending ${action} to webhook:`, error);
-                    beepSound.play(); // Beep sound for error
+                    beepSound.play();
                 });
             } else {
-                beepSound.play(); // Beep sound for no result
+                beepSound.play();
             }
         }
 
@@ -151,4 +162,5 @@
     </script>
 </body>
 </html>
+
 
