@@ -71,7 +71,23 @@
     </div>
     
     <script>
-        const WEBHOOK_URL = "https://go.glideapps.com/api/container/plugin/webhook-trigger/f462hAWSuIScLrp6quRE/0a7c9bb6-7137-460f-8793-fe162630f72f"; // Replace with your actual webhook URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Get email and webhook from URL if provided
+        const predefinedEmail = getQueryParam('email');
+        const customWebhook = getQueryParam('webhook');
+
+        // Set email field if found
+        if (predefinedEmail) {
+            document.getElementById('email').value = predefinedEmail;
+        }
+
+        // Override the webhook URL if provided
+        const WEBHOOK_URL = customWebhook || "https://your-webhook-url.com"; // Replace with your actual webhook URL
+        
         const beepSound = new Audio("https://www.soundjay.com/button/beep-07.wav"); // Beep sound URL
         beepSound.volume = 1.0; // Set beep sound to maximum volume
 
