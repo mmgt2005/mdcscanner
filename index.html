@@ -13,39 +13,77 @@
             align-items: center;
             gap: 10px;
         }
-        #copy-button {
+        .action-button {
             cursor: pointer;
             padding: 5px 10px;
-            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
         }
+        #check-in-button {
+            background-color: #28a745;
+        }
+        #check-out-button {
+            background-color: #dc3545;
+        }
     </style>
 </head>
 <body>
+    <label for="email">Enter your email:</label>
+    <input type="email" id="email" required>
     <div id="reader"></div>
     <div id="result-container">
         <p>Scanned Result: <span id="result">None</span></p>
-        <button id="copy-button">Copy</button>
+        <button id="check-in-button" class="action-button">Check In</button>
+        <button id="check-out-button" class="action-button">Check Out</button>
     </div>
     
     <script>
+        const WEBHOOK_URL = "https://go.glideapps.com/api/container/plugin/webhook-trigger/f462hAWSuIScLrp6quRE/0a7c9bb6-7137-460f-8793-fe162630f72f"; // Replace with your actual webhook URL
+        const beepSound = new Audio("https://www.soundjay.com/button/beep-07.wav"); // Beep sound URL
+        beepSound.volume = 1.0; // Set beep sound to maximum volume
+
         function onScanSuccess(decodedText, decodedResult) {
             document.getElementById('result').innerText = decodedText;
+            beepSound.play(); // Play beep sound on successful scan
         }
 
         function onScanError(errorMessage) {
             console.warn(`QR Code scan error: ${errorMessage}`);
         }
 
-        document.getElementById('copy-button').addEventListener('click', function() {
+        function sendToWebhook(action) {
             const resultText = document.getElementById('result').innerText;
-            navigator.clipboard.writeText(resultText).then(() => {
-                alert('Copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-            });
+            const email = document.getElementById('email').value;
+            
+            if (!email) {
+                beepSound.play(); // Beep sound for error
+                return;
+            }
+            
+            if (resultText !== "None") {
+                fetch(WEBHOOK_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, scanned_result: resultText, action: action })
+                })
+                .then(response => response.json())
+                .then(data => beepSound.play()) // Beep sound on successful webhook send
+                .catch(error => {
+                    console.error(`Error sending ${action} to webhook:`, error);
+                    beepSound.play(); // Beep sound for error
+                });
+            } else {
+                beepSound.play(); // Beep sound for no result
+            }
+        }
+
+        document.getElementById('check-in-button').addEventListener('click', function() {
+            sendToWebhook("Check In");
+        });
+
+        document.getElementById('check-out-button').addEventListener('click', function() {
+            sendToWebhook("Check Out");
         });
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
