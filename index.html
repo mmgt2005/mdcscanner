@@ -54,12 +54,14 @@
             width: 100%;
             max-width: 240px;
             text-align: center;
+            flex: 1;
         }
         #button-container {
             display: flex;
             gap: 10px;
             width: 100%;
             justify-content: space-between;
+            flex-wrap: nowrap;
         }
         #check-in-button {
             background-color: #28a745;
@@ -118,11 +120,13 @@
                 padding: 5px;
             }
             .action-button {
-                width: 100%;
+                font-size: 1rem;
+                padding: 15px;
             }
             #button-container {
-                flex-direction: column;
-                align-items: center;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
             }
         }
     </style>
