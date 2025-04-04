@@ -22,13 +22,20 @@
             width: 90vw;
             max-width: 500px;
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
         }
         #reader {
             width: 100%;
             height: auto;
+        }
+        #reader__dashboard_section_csr span {
+            font-size: 1.5rem !important;
+        }
+        #reader__dashboard_section_csr button {
+            font-size: 1.2rem !important;
+            padding: 12px 24px !important;
         }
         #result-container {
             display: flex;
@@ -39,13 +46,20 @@
         }
         .action-button {
             cursor: pointer;
-            padding: 10px;
+            padding: 20px;
+            font-size: 1.2rem;
             color: white;
             border: none;
             border-radius: 5px;
-            width: 90%;
-            max-width: 200px;
+            width: 100%;
+            max-width: 240px;
             text-align: center;
+        }
+        #button-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: space-between;
         }
         #check-in-button {
             background-color: #28a745;
@@ -54,9 +68,7 @@
             background-color: #dc3545;
         }
         #email-container {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 10px;
+            display: none;
         }
         #email {
             width: 100%;
@@ -68,14 +80,36 @@
             color: green;
             font-weight: bold;
             margin-top: 5px;
+            font-size: 2rem;
+            animation: popIn 0.4s ease-in-out;
+        }
+        .visual-alert {
+            font-size: 1.5rem;
+            color: #ff5722;
+            font-weight: bold;
+            animation: fadeFlash 1s ease-in-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeFlash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
         }
         @media (max-width: 600px) {
             #container {
                 width: 95vw;
-                padding: 15px;
+                padding: 5px;
             }
             .action-button {
                 width: 100%;
+            }
+            #button-container {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
@@ -91,11 +125,14 @@
             <p>Scanned Result: <span id="result">None</span></p>
             <p id="scan-message"></p>
             <p id="record-message" style="color: blue;"></p>
-            <button id="check-in-button" class="action-button">Check In</button>
-            <button id="check-out-button" class="action-button">Check Out</button>
+            <p id="visual-alert" class="visual-alert" style="display: none;">✔️ Scan Complete</p>
+            <div id="button-container">
+                <button id="check-in-button" class="action-button">Check In</button>
+                <button id="check-out-button" class="action-button">Check Out</button>
+            </div>
         </div>
     </div>
-    
+
     <script>
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -110,15 +147,10 @@
         }
 
         const WEBHOOK_URL = customWebhook || "https://your-webhook-url.com";
-        
-        const beepSound = new Audio("https://www.soundjay.com/button/beep-07.wav");
-        beepSound.volume = 1.0;
 
         function onScanSuccess(decodedText, decodedResult) {
             document.getElementById('result').innerText = decodedText;
             document.getElementById('scan-message').innerText = "Scan Successful";
-            beepSound.play();
-            setTimeout(() => beepSound.play(), 200);
         }
 
         function onScanError(errorMessage) {
@@ -128,13 +160,11 @@
         function sendToWebhook(action) {
             const resultText = document.getElementById('result').innerText;
             const email = document.getElementById('email').value;
-            
-            if (!email) {
-                beepSound.play();
-                return;
-            }
-            
+
+            if (!email) return;
+
             if (resultText !== "None") {
+                document.getElementById('record-message').innerText = "Processing...";
                 fetch(WEBHOOK_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -142,18 +172,26 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    beepSound.play();
                     document.getElementById('result').innerText = "None";
                     document.getElementById('scan-message').innerText = "";
                     document.getElementById('record-message').innerText = "Scan Recorded";
+                    showVisualAlert();
                 })
                 .catch(error => {
                     console.error(`Error sending ${action} to webhook:`, error);
-                    beepSound.play();
                 });
-            } else {
-                beepSound.play();
             }
+        }
+
+        function showVisualAlert() {
+            const alertEl = document.getElementById('visual-alert');
+            alertEl.style.display = 'block';
+            alertEl.classList.remove('fadeFlash');
+            void alertEl.offsetWidth; // Trigger reflow
+            alertEl.classList.add('fadeFlash');
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 1000);
         }
 
         document.getElementById('check-in-button').addEventListener('click', function() {
@@ -165,9 +203,23 @@
         });
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 250 }
+            "reader",
+            { fps: 10, qrbox: 250 },
+            false
         );
-        html5QrcodeScanner.render(onScanSuccess, onScanError);
+
+        html5QrcodeScanner.clear().then(_ => {
+            const config = { fps: 10, qrbox: 250 };
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanError
+            );
+        }).catch(error => {
+            console.error("Failed to clear default scanner UI: ", error);
+        });
     </script>
 </body>
 </html>
