@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            display: flex;
+
             align-items: flex-start;
             justify-content: center;
             height: 100vh;
@@ -208,35 +198,4 @@
             alertEl.classList.add('fadeFlash');
             setTimeout(() => {
                 alertEl.style.display = 'none';
-            }, 1000);
-        }
-
-        document.getElementById('check-in-button').addEventListener('click', function() {
-            sendToWebhook("Check In");
-        });
-
-        document.getElementById('check-out-button').addEventListener('click', function() {
-            sendToWebhook("Check Out");
-        });
-
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            { fps: 10, qrbox: 250 },
-            false
-        );
-
-        html5QrcodeScanner.clear().then(_ => {
-            const config = { fps: 10, qrbox: 250 };
-            const html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                onScanSuccess,
-                onScanError
-            );
-        }).catch(error => {
-            console.error("Failed to clear default scanner UI: ", error);
-        });
-    </script>
-</body>
-</html>
+            }, >
