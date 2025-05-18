@@ -190,13 +190,16 @@
 
             document.getElementById('record-message').innerText = "Processing...";
 
-            navigator.sendBeacon(WEBHOOK_URL, new Blob([
-                JSON.stringify({ email, scanned_result: resultText, action })
-            ], { type: 'application/json' }));
+            fetch(WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, scanned_result: resultText, action })
+});
+console.log("Webhook sent to:", WEBHOOK_URL);
 
             document.getElementById('result').innerText = "None";
             document.getElementById('scan-message').innerText = "";
-            document.getElementById('record-message').innerText = "Scan Complete";
+            document.getElementById('record-message').innerText = "Processing...";
             showVisualAlert();
         }
 
